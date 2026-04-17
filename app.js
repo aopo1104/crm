@@ -26,9 +26,6 @@ app.use(express.json());
 const router = express.Router();
 router.use((req, res, next) => { res.locals.base = BASE; next(); });
 
-// Redirect root to /crm
-app.get('/', (req, res) => res.redirect(BASE));
-
 // ── Workbench ──────────────────────────────────────────────────────────────
 router.get('/', (req, res) => {
   const publicLeads = leads.filter(l => l.followers.length === 0);
