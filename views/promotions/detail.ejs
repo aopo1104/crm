@@ -1,0 +1,58 @@
+<%- include('../partials/header') %>
+<div class="p-6 space-y-4">
+  <div class="flex items-center gap-4">
+    <a href="/promotions" class="btn btn-ghost">← 返回</a>
+    <div class="flex-1">
+      <div class="flex items-center gap-2 flex-wrap">
+        <h1 class="text-2xl font-bold"><%= task.name %></h1>
+        <span class="badge <%= taskStatusMap[task.status].color %>"><%= taskStatusMap[task.status].label %></span>
+      </div>
+      <p class="text-gray-500 text-sm mt-1">产品：<%= task.productName %> · 渠道：<%= task.channel %> · 截止：<%= task.deadline %></p>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="card"><div class="card-content pt-4">
+      <p class="text-xs text-gray-500">发送</p><p class="text-2xl font-bold"><%= task.sentCount %>/<%= task.totalTarget %></p>
+    </div></div>
+    <div class="card"><div class="card-content pt-4">
+      <p class="text-xs text-gray-500">打开率</p><p class="text-2xl font-bold text-blue-600"><%= task.openRate %></p>
+    </div></div>
+    <div class="card"><div class="card-content pt-4">
+      <p class="text-xs text-gray-500">回复率</p><p class="text-2xl font-bold text-purple-600"><%= task.replyRate %></p>
+    </div></div>
+    <div class="card"><div class="card-content pt-4">
+      <p class="text-xs text-gray-500">转化率</p><p class="text-2xl font-bold text-green-600"><%= task.convertRate %></p>
+    </div></div>
+  </div>
+
+  <!-- Template -->
+  <div class="card">
+    <div class="card-header"><h2 class="font-semibold">推广模板</h2></div>
+    <div class="card-content">
+      <p class="text-sm text-gray-700 whitespace-pre-wrap bg-gray-50 p-3 rounded"><%= task.template %></p>
+      <% if(task.advantages) { %>
+      <div class="mt-3">
+        <p class="text-xs font-medium text-gray-500 mb-1">产品优势</p>
+        <p class="text-sm text-gray-700"><%= task.advantages %></p>
+      </div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Assigned salespeople -->
+  <div class="card">
+    <div class="card-header"><h2 class="font-semibold">执行人员</h2></div>
+    <div class="card-content">
+      <div class="flex flex-wrap gap-2">
+        <% task.assignedTo.forEach(sp => { %>
+        <span class="badge <%= task.promotedBy.includes(sp)?'badge-green':'badge-gray' %>">
+          <%= sp %> <%= task.promotedBy.includes(sp)?'✓':'（待执行）' %>
+        </span>
+        <% }) %>
+      </div>
+    </div>
+  </div>
+</div>
+<%- include('../partials/footer') %>

@@ -1,0 +1,58 @@
+<%- include('../partials/header') %>
+<div class="p-6 space-y-6">
+  <div>
+    <h1 class="text-2xl font-bold">审批中心</h1>
+    <p class="text-gray-500">处理报价审批与客户延期申请</p>
+  </div>
+
+  <div class="flex gap-2">
+    <% [['all','全部'],['pending','待处理'],['done','已处理']].forEach(([k,v]) => { %>
+    <button class="filter-btn <%= k==='all'?'active':'' %>" data-astatus="<%= k %>" onclick="setAFilter('<%= k %>',this)"><%= v %></button>
+    <% }) %>
+  </div>
+
+  <div class="space-y-4" id="approval-list">
+    <% approvals.forEach(a => { %>
+    <div class="card <%= a.status==='pending'?'border-yellow-200':'' %>" id="approval-<%= a.id %>" data-astatus="<%= a.status==='pending'?'pending':'done' %>">
+      <div class="card-content pt-5 pb-5">
+        <div class="flex items-start justify-between flex-wrap gap-4">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="text-lg"><%= a.status==='pending'?'🕐':a.status==='approved'?'✅':'❌' %></span>
+              <span class="font-semibold"><%= a.title %></span>
+              <span class="badge <%= a.status==='pending'?'badge-yellow':a.status==='approved'?'badge-green':'badge-red' %>">
+                <%= a.status==='pending'?'待审批':a.status==='approved'?'已批准':'已拒绝' %>
+              </span>
+            </div>
+            <p class="text-sm text-gray-600"><%= a.description %></p>
+            <p class="text-xs text-gray-400">申请人：<%= a.requestedBy %> · <%= a.requestedAt %>
+              <% if(a.approvedBy) { %>· 审批人：<%= a.approvedBy %> (<%= a.approvedAt %>)<% } %>
+            </p>
+          </div>
+          <% if(a.status==='pending') { %>
+          <div class="flex gap-2">
+            <form action="/approvals/<%= a.id %>/approve" method="POST" style="display:inline">
+              <button type="submit" class="btn btn-success btn-sm">✓ 批准</button>
+            </form>
+            <form action="/approvals/<%= a.id %>/reject" method="POST" style="display:inline">
+              <button type="submit" class="btn btn-danger btn-sm">✕ 拒绝</button>
+            </form>
+          </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+    <% }) %>
+  </div>
+</div>
+
+<script>
+function setAFilter(v, btn) {
+  document.querySelectorAll('[data-astatus]').forEach(b => { if(b.tagName==='BUTTON') b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.querySelectorAll('#approval-list [data-astatus]').forEach(card => {
+    card.style.display = v==='all' || card.dataset.astatus===v ? '' : 'none';
+  });
+}
+</script>
+<%- include('../partials/footer') %>

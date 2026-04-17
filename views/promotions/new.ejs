@@ -1,0 +1,55 @@
+<%- include('../partials/header') %>
+<div class="p-6 space-y-6">
+  <div class="flex items-center gap-4">
+    <a href="/promotions" class="btn btn-ghost">← 返回</a>
+    <h1 class="text-2xl font-bold">新建推广任务</h1>
+  </div>
+
+  <div class="card" style="max-width:640px">
+    <div class="card-content pt-6">
+      <form action="/promotions" method="POST" class="space-y-5">
+        <div>
+          <label class="block text-sm font-medium mb-1">任务名称</label>
+          <input name="name" class="input w-full" placeholder="例：E1 Pro 新品推广" required>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">关联产品</label>
+          <select name="productId" class="input w-full">
+            <% products.forEach(p => { %>
+            <option value="<%= p.id %>"><%= p.name %> (<%= p.category %>)</option>
+            <% }) %>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">目标客户等级</label>
+          <select name="targetLevel" class="input w-full">
+            <option>A</option><option>B</option><option>C</option><option selected>A+B</option><option>B+C</option><option>A+B+C</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">推广渠道</label>
+          <select name="channel" class="input w-full">
+            <option>邮件</option><option>WhatsApp</option><option>社交媒体</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">推广模板</label>
+          <textarea name="template" rows="4" class="input w-full" placeholder="输入推广内容模板..."></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">产品优势</label>
+          <input name="advantages" class="input w-full" placeholder="简要描述产品卖点">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">截止日期</label>
+          <input type="date" name="deadline" class="input w-full" required>
+        </div>
+        <div class="flex gap-3 pt-2">
+          <button type="submit" class="btn btn-primary">创建任务</button>
+          <a href="/promotions" class="btn btn-outline">取消</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<%- include('../partials/footer') %>

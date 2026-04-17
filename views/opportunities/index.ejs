@@ -1,0 +1,51 @@
+<%- include('../partials/header') %>
+<div class="p-6 space-y-6">
+  <div>
+    <h1 class="text-2xl font-bold">商机管理</h1>
+    <p class="text-gray-500">追踪所有商业机会</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header flex flex-wrap gap-2">
+      <% [['all','全部'],['initial','初步接触'],['proposal','方案报价'],['negotiation','商务谈判'],['won','赢单'],['lost','输单']].forEach(([k,v]) => { %>
+      <button class="filter-btn <%= k==='all'?'active':'' %>" data-ostage="<%= k %>" onclick="setOStage('<%= k %>',this)"><%= v %></button>
+      <% }) %>
+    </div>
+    <div class="card-content">
+      <div class="overflow-x-auto">
+        <table class="table w-full">
+          <thead><tr>
+            <th>商机名称</th><th>关联</th><th>预计金额</th><th>阶段</th><th>预计成交</th><th>创建人</th>
+          </tr></thead>
+          <tbody id="opp-tbody">
+          <% opportunities.forEach(o => { %>
+          <tr data-ostage="<%= o.stage %>">
+            <td class="font-medium"><%= o.name %></td>
+            <td>
+              <a href="/<%= o.relatedType==='lead'?'leads':'customers' %>/<%= o.relatedId %>" class="text-indigo-600 hover:underline text-sm">
+                <%= o.relatedName %>
+              </a>
+            </td>
+            <td class="font-medium">$<%= o.estimatedAmount.toLocaleString() %></td>
+            <td><span class="badge <%= opportunityStageColors[o.stage] %>"><%= opportunityStageMap[o.stage] %></span></td>
+            <td><%= o.expectedCloseDate %></td>
+            <td><%= o.createdBy %></td>
+          </tr>
+          <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function setOStage(v, btn) {
+  document.querySelectorAll('[data-ostage]').forEach(b => b.classList && b.tagName==='BUTTON' && b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#opp-tbody tr').forEach(row => {
+    row.style.display = v==='all' || row.dataset.ostage===v ? '' : 'none';
+  });
+}
+</script>
+<%- include('../partials/footer') %>

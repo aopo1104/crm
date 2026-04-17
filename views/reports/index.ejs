@@ -1,0 +1,102 @@
+<%- include('../partials/header') %>
+<div class="p-6 space-y-6">
+  <div>
+    <h1 class="text-2xl font-bold">报表中心</h1>
+    <p class="text-gray-500">数据分析与业绩追踪</p>
+  </div>
+
+  <!-- Funnel -->
+  <div class="card">
+    <div class="card-header"><h2 class="font-semibold">线索漏斗</h2></div>
+    <div class="card-content">
+      <div class="space-y-3">
+        <% funnelStats.forEach((s, i) => { %>
+        <% const maxCount = funnelStats[0].count; const pct = Math.round(s.count/maxCount*100); %>
+        <div class="flex items-center gap-3">
+          <span class="text-sm text-gray-600 w-20 text-right"><%= s.stage %></span>
+          <div class="flex-1 bg-gray-100 rounded-full h-7 relative">
+            <div class="bg-indigo-500 h-7 rounded-full flex items-center justify-end pr-3" style="width:<%= pct %>%">
+              <span class="text-white text-xs font-medium"><%= s.count %></span>
+            </div>
+          </div>
+          <% if(s.conversionRate) { %><span class="text-xs text-gray-400 w-14">↓ <%= s.conversionRate %></span><% } else { %><span class="w-14"></span><% } %>
+        </div>
+        <% }) %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Stats -->
+  <div class="card">
+    <div class="card-header"><h2 class="font-semibold">产品推广效果</h2></div>
+    <div class="card-content">
+      <div class="overflow-x-auto">
+        <table class="table w-full">
+          <thead><tr>
+            <th>产品</th><th>推广次数</th><th>询盘数</th><th>报价数</th><th>成交数</th><th>成交率</th><th>总收入</th>
+          </tr></thead>
+          <tbody>
+          <% productStats.forEach(p => { %>
+          <tr>
+            <td class="font-medium"><%= p.name %></td>
+            <td><%= p.promotionCount %></td>
+            <td><%= p.inquiryCount %></td>
+            <td><%= p.quoteCount %></td>
+            <td><%= p.dealCount %></td>
+            <td class="font-medium text-green-600"><%= p.dealRate %></td>
+            <td class="font-medium">$<%= p.revenue.toLocaleString() %></td>
+          </tr>
+          <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Salesperson Funnel -->
+  <div class="card">
+    <div class="card-header"><h2 class="font-semibold">业务员漏斗</h2></div>
+    <div class="card-content">
+      <div class="overflow-x-auto">
+        <table class="table w-full">
+          <thead><tr>
+            <th>业务员</th><th>总线索</th><th>待接触</th><th>接触中</th><th>互联中</th><th>报价中</th>
+          </tr></thead>
+          <tbody>
+          <% salespersonFunnel.forEach(s => { %>
+          <tr>
+            <td class="font-medium"><%= s.name %></td>
+            <td><%= s.totalLeads %></td>
+            <td><%= s.pending_contact %></td>
+            <td><%= s.contacting %></td>
+            <td><%= s.interacting %></td>
+            <td><%= s.quoting %></td>
+          </tr>
+          <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Customer Stats -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="card"><div class="card-content pt-4">
+      <p class="text-xs text-gray-500">客户总数</p>
+      <p class="text-2xl font-bold"><%= customers.length %></p>
+    </div></div>
+    <div class="card"><div class="card-content pt-4">
+      <p class="text-xs text-gray-500">已成交</p>
+      <p class="text-2xl font-bold text-green-600"><%= customers.filter(c=>c.stage==='closed').length %></p>
+    </div></div>
+    <div class="card"><div class="card-content pt-4">
+      <p class="text-xs text-gray-500">样品阶段</p>
+      <p class="text-2xl font-bold text-orange-600"><%= customers.filter(c=>c.stage==='sample').length %></p>
+    </div></div>
+    <div class="card"><div class="card-content pt-4">
+      <p class="text-xs text-gray-500">线索总数</p>
+      <p class="text-2xl font-bold"><%= leads.length %></p>
+    </div></div>
+  </div>
+</div>
+<%- include('../partials/footer') %>

@@ -1,8 +1,8 @@
 module.exports = {
   apps: [{
     name: 'crm',
-    script: 'node_modules/next/dist/bin/next',
-    args: 'start -p 3002',
-    cwd: 'D:/PythonProject/crm'
+    script: 'app.js',
+    cwd: 'D:/PythonProject/crm',
+    env: { PORT: 3002, NODE_ENV: 'production' }
   }]
 }

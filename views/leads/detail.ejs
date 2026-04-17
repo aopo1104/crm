@@ -1,0 +1,124 @@
+<%- include('../partials/header') %>
+<div class="p-6 space-y-4">
+  <!-- Header -->
+  <div class="flex items-center gap-4">
+    <a href="/leads" class="btn btn-ghost">← 返回</a>
+    <div class="flex-1">
+      <div class="flex items-center gap-2 flex-wrap">
+        <h1 class="text-2xl font-bold"><%= lead.company %></h1>
+        <span class="badge <%= leadStageColors[lead.status] %>"><%= leadStageMap[lead.status] %></span>
+        <% if(lead.followers.length===0) { %><span class="badge badge-gray">公海</span><% } else { %><span class="badge badge-blue">私有</span><% } %>
+      </div>
+      <div class="flex gap-4 mt-1 text-sm text-gray-500">
+        <span><%= lead.id %></span>
+        <span>📌 <%= lead.source %></span>
+        <span>🏭 <%= lead.industry %></span>
+        <span>🌍 <%= lead.country %></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Basic info card -->
+  <div class="card">
+    <div class="card-content pt-4">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <div><p class="text-xs text-gray-500">主联系人</p><p class="font-medium"><%= lead.contact %></p></div>
+        <div><p class="text-xs text-gray-500">邮箱</p><p class="font-medium">📧 <%= lead.email %></p></div>
+        <div><p class="text-xs text-gray-500">电话</p><p class="font-medium">📞 <%= lead.phone %></p></div>
+        <div><p class="text-xs text-gray-500">创建时间</p><p class="font-medium"><%= lead.createdAt %></p></div>
+        <div><p class="text-xs text-gray-500">负责人</p><p class="font-medium"><%= lead.followers.length>0 ? lead.followers.join(', ') : '—（公海）' %></p></div>
+        <div><p class="text-xs text-gray-500">最近跟进</p>
+          <% const ds = lead.lastFollowUpDate ? Math.floor((Date.now()-new Date(lead.lastFollowUpDate).getTime())/86400000) : null; %>
+          <p class="font-medium <%= ds===null||ds>7 ? 'text-red-500':'' %>"><%= ds===null ? '未跟进' : ds+'天前' %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="flex gap-2 flex-wrap" id="detail-tabs">
+    <button class="tab-btn active" onclick="showTab('followup', this)">跟进记录</button>
+    <button class="tab-btn" onclick="showTab('contacts', this)">联系人</button>
+    <button class="tab-btn" onclick="showTab('opps', this)">商机</button>
+  </div>
+
+  <!-- Follow-up Records -->
+  <div id="tab-followup" class="tab-panel active space-y-3">
+    <% if(leadFollowUps.length===0) { %>
+    <div class="card"><div class="card-content pt-4 pb-4"><p class="text-sm text-gray-400">暂无跟进记录</p></div></div>
+    <% } %>
+    <% leadFollowUps.forEach(r => { %>
+    <div class="card">
+      <div class="card-content pt-4 pb-4">
+        <div class="flex items-start gap-3">
+          <span class="text-2xl"><%= r.type==='customer_reply'?'💬':'📝' %></span>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 flex-wrap mb-1">
+              <span class="font-medium text-sm"><%= r.type==='customer_reply'?'客户回复':'跟进记录' %></span>
+              <% if(r.followUpType) { %><span class="badge badge-blue text-xs"><%= followUpTypeMap[r.followUpType]||r.followUpType %></span><% } %>
+              <span class="text-xs text-gray-400"><%= r.createdAt %> · <%= r.createdBy %></span>
+            </div>
+            <% if(r.subject) { %><p class="text-sm font-medium text-gray-700 mb-1"><%= r.subject %></p><% } %>
+            <p class="text-sm text-gray-600"><%= r.content %></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <% }) %>
+  </div>
+
+  <!-- Contacts -->
+  <div id="tab-contacts" class="tab-panel">
+    <div class="card">
+      <div class="card-content pt-4">
+        <% if(leadContacts.length===0) { %>
+        <p class="text-sm text-gray-400 pb-4">暂无联系人</p>
+        <% } else { %>
+        <table class="table w-full">
+          <thead><tr><th>姓名</th><th>职位</th><th>邮箱</th><th>电话</th><th>主联系人</th></tr></thead>
+          <tbody>
+          <% leadContacts.forEach(c => { %>
+          <tr>
+            <td class="font-medium"><%= c.name %></td>
+            <td><%= c.title %></td>
+            <td><%= c.email %></td>
+            <td><%= c.phone %></td>
+            <td><%= c.isPrimary ? '✅' : '' %></td>
+          </tr>
+          <% }) %>
+          </tbody>
+        </table>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Opportunities -->
+  <div id="tab-opps" class="tab-panel space-y-3">
+    <% if(leadOpps.length===0) { %>
+    <div class="card"><div class="card-content pt-4 pb-4"><p class="text-sm text-gray-400">暂无商机</p></div></div>
+    <% } %>
+    <% leadOpps.forEach(o => { %>
+    <div class="card">
+      <div class="card-content pt-4 pb-4 flex items-center justify-between">
+        <div>
+          <p class="font-medium text-sm"><%= o.name %></p>
+          <p class="text-xs text-gray-500 mt-1">预计金额 $<%= o.estimatedAmount.toLocaleString() %> · 预计成交 <%= o.expectedCloseDate %></p>
+          <p class="text-xs text-gray-500"><%= o.notes %></p>
+        </div>
+        <span class="badge <%= opportunityStageColors[o.stage] %>"><%= opportunityStageMap[o.stage] %></span>
+      </div>
+    </div>
+    <% }) %>
+  </div>
+</div>
+
+<script>
+function showTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('#detail-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+<%- include('../partials/footer') %>

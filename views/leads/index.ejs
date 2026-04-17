@@ -1,0 +1,191 @@
+<%- include('../partials/header') %>
+<div class="p-6 space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold">线索管理</h1>
+      <p class="text-gray-500">公海线索对所有人可见，私有线索仅认领人可见</p>
+    </div>
+    <a href="/leads/search" class="btn btn-outline">🔍 线索查重</a>
+  </div>
+
+  <!-- Claim quota -->
+  <% if(myPoints) { %>
+  <div class="card border-blue-200 bg-blue-50">
+    <div class="card-content pt-4">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <p class="text-sm font-medium text-blue-900">本周期认领配额 — <%= CURRENT_USER %></p>
+          <div class="flex gap-4 mt-1 text-xs text-blue-700">
+            <span>加班 <strong><%= myPoints.overtime %></strong></span>
+            <span>邮件 <strong><%= myPoints.email %></strong></span>
+            <span>会谈 <strong><%= myPoints.meeting %></strong></span>
+            <span>拜访 <strong><%= myPoints.visit %></strong></span>
+          </div>
+        </div>
+        <div class="flex gap-6">
+          <div class="text-center"><p class="text-2xl font-bold text-blue-700"><%= claimLimit %></p><p class="text-xs text-gray-500">总配额</p></div>
+          <div class="text-center"><p class="text-2xl font-bold text-orange-600"><%= myPoints.claimedThisPeriod %></p><p class="text-xs text-gray-500">已认领</p></div>
+          <div class="text-center"><p class="text-2xl font-bold text-green-600"><%= Math.max(0, claimLimit - myPoints.claimedThisPeriod) %></p><p class="text-xs text-gray-500">剩余</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <% } %>
+
+  <!-- Tabs -->
+  <div class="flex gap-3" id="lead-tabs">
+    <button class="tab-btn active" onclick="switchTab('public', this)">
+      🌐 公海线索
+      <span class="badge badge-gray" id="public-count"><%= leads.filter(l=>l.followers.length===0).length %></span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('private', this)">
+      🔒 私有线索
+      <span class="badge badge-gray" id="private-count"><%= leads.filter(l=>l.followers.length>0).length %></span>
+    </button>
+  </div>
+
+  <!-- Search & filter bar -->
+  <div class="card">
+    <div class="card-header flex flex-wrap items-center justify-between gap-3">
+      <div class="relative">
+        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🔍</span>
+        <input type="text" id="lead-search" class="input pl-9" placeholder="搜索公司名/联系人..." style="width:240px"
+          oninput="filterLeads()">
+      </div>
+      <div id="public-filters" class="flex gap-2 flex-wrap">
+        <span class="text-xs text-gray-500 self-center">掉入公海：</span>
+        <% [['all','全部'],['7','近7天'],['30','近30天'],['90','近90天']].forEach(([k,v]) => { %>
+        <button class="filter-btn <%= k==='all'?'active':'' %>" data-time="<%= k %>" onclick="setTimeFilter('<%= k %>', this)"><%= v %></button>
+        <% }) %>
+      </div>
+      <div id="private-filters" class="hidden flex gap-2 flex-wrap">
+        <span class="text-xs text-gray-500 self-center">阶段：</span>
+        <% [['all','全部'],['pending_contact','待接触'],['contacting','接触中'],['interacting','互联中'],['invalid','已失效']].forEach(([k,v]) => { %>
+        <button class="filter-btn <%= k==='all'?'active':'' %>" data-stage="<%= k %>" onclick="setStageFilter('<%= k %>', this)"><%= v %></button>
+        <% }) %>
+      </div>
+    </div>
+
+    <!-- Public leads table -->
+    <div id="tab-public" class="tab-panel active card-content">
+      <div class="overflow-x-auto">
+        <table class="table w-full">
+          <thead><tr>
+            <th>公司名称</th><th>联系人</th><th>来源</th><th>行业</th><th>国家</th><th>掉入公海</th><th>操作</th>
+          </tr></thead>
+          <tbody id="public-tbody">
+          <% leads.filter(l=>l.followers.length===0).forEach(l => { %>
+          <tr class="lead-row" data-company="<%= l.company.toLowerCase() %>" data-contact="<%= l.contact.toLowerCase() %>"
+            data-dropped="<%= l.droppedToPublicAt||l.createdAt %>">
+            <td class="font-medium"><a href="/leads/<%= l.id %>" class="text-indigo-600 hover:underline"><%= l.company %></a></td>
+            <td><%= l.contact %></td>
+            <td><%= l.source %></td>
+            <td><%= l.industry %></td>
+            <td><%= l.country %></td>
+            <td class="text-gray-500 text-sm">
+              <% const dp = l.droppedToPublicAt||l.createdAt; const dd = Math.floor((Date.now()-new Date(dp).getTime())/86400000); %>
+              <%= dd %> 天前
+            </td>
+            <td>
+              <a href="/leads/<%= l.id %>" class="btn btn-outline btn-sm">👁 查看</a>
+              <button class="btn btn-primary btn-sm ml-1" onclick="claimLead(this)">认领</button>
+            </td>
+          </tr>
+          <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Private leads table -->
+    <div id="tab-private" class="tab-panel card-content">
+      <div class="overflow-x-auto">
+        <table class="table w-full">
+          <thead><tr>
+            <th>公司名称</th><th>联系人</th><th>阶段</th><th>负责人</th><th>国家</th><th>最近跟进</th><th>操作</th>
+          </tr></thead>
+          <tbody id="private-tbody">
+          <% leads.filter(l=>l.followers.length>0).forEach(l => { %>
+          <% const ds = l.lastFollowUpDate ? Math.floor((Date.now()-new Date(l.lastFollowUpDate).getTime())/86400000) : null; %>
+          <tr class="lead-row-priv" data-company="<%= l.company.toLowerCase() %>" data-contact="<%= l.contact.toLowerCase() %>"
+            data-stage="<%= l.status %>">
+            <td class="font-medium"><a href="/leads/<%= l.id %>" class="text-indigo-600 hover:underline"><%= l.company %></a></td>
+            <td><%= l.contact %></td>
+            <td><span class="badge <%= leadStageColors[l.status] %>"><%= leadStageMap[l.status] %></span></td>
+            <td><%= l.followers.join(', ') %></td>
+            <td><%= l.country %></td>
+            <td class="<%= (ds===null||ds>7)?'text-red-500 font-medium':'' %>">
+              <%= ds===null ? '未跟进' : ds+'天前' %>
+            </td>
+            <td><a href="/leads/<%= l.id %>" class="btn btn-outline btn-sm">👁 查看</a></td>
+          </tr>
+          <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentTab = 'public';
+let timeFilter = 'all';
+let stageFilter = 'all';
+
+function switchTab(tab, btn) {
+  currentTab = tab;
+  document.getElementById('tab-public').classList.toggle('active', tab==='public');
+  document.getElementById('tab-private').classList.toggle('active', tab==='private');
+  document.getElementById('public-filters').classList.toggle('hidden', tab!=='public');
+  document.getElementById('private-filters').classList.toggle('hidden', tab==='public');
+  document.querySelectorAll('#lead-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterLeads();
+}
+
+function setTimeFilter(val, btn) {
+  timeFilter = val;
+  document.querySelectorAll('[data-time]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterLeads();
+}
+
+function setStageFilter(val, btn) {
+  stageFilter = val;
+  document.querySelectorAll('[data-stage]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterLeads();
+}
+
+function filterLeads() {
+  const q = document.getElementById('lead-search').value.toLowerCase();
+  const now = Date.now();
+  if (currentTab === 'public') {
+    document.querySelectorAll('.lead-row').forEach(row => {
+      const matchQ = !q || row.dataset.company.includes(q) || row.dataset.contact.includes(q);
+      let matchT = true;
+      if (timeFilter !== 'all') {
+        const days = parseInt(timeFilter);
+        const dropped = new Date(row.dataset.dropped).getTime();
+        matchT = (now - dropped) / 86400000 <= days;
+      }
+      row.style.display = matchQ && matchT ? '' : 'none';
+    });
+  } else {
+    document.querySelectorAll('.lead-row-priv').forEach(row => {
+      const matchQ = !q || row.dataset.company.includes(q) || row.dataset.contact.includes(q);
+      const matchS = stageFilter === 'all' || row.dataset.stage === stageFilter;
+      row.style.display = matchQ && matchS ? '' : 'none';
+    });
+  }
+}
+
+function claimLead(btn) {
+  const row = btn.closest('tr');
+  btn.textContent = '已认领';
+  btn.disabled = true;
+  btn.classList.remove('btn-primary');
+  btn.classList.add('btn-outline');
+}
+</script>
+<%- include('../partials/footer') %>

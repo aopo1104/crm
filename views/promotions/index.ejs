@@ -1,0 +1,59 @@
+<%- include('../partials/header') %>
+<div class="p-6 space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold">推广任务</h1>
+      <p class="text-gray-500">管理所有产品推广活动</p>
+    </div>
+    <a href="/promotions/new" class="btn btn-primary">+ 新建任务</a>
+  </div>
+
+  <div class="card">
+    <div class="card-header flex gap-2 flex-wrap">
+      <% [['all','全部'],['active','进行中'],['draft','草稿'],['completed','已完成']].forEach(([k,v]) => { %>
+      <button class="filter-btn <%= k==='all'?'active':'' %>" data-tstatus="<%= k %>" onclick="setTFilter('<%= k %>',this)"><%= v %></button>
+      <% }) %>
+    </div>
+    <div class="card-content">
+      <div class="overflow-x-auto">
+        <table class="table w-full">
+          <thead><tr>
+            <th>任务名称</th><th>产品</th><th>目标级别</th><th>状态</th><th>进度</th><th>截止日期</th><th>操作</th>
+          </tr></thead>
+          <tbody id="task-tbody">
+          <% promotionTasks.forEach(t => { %>
+          <% const pct = t.totalTarget > 0 ? Math.round(t.sentCount/t.totalTarget*100) : 0; %>
+          <tr data-tstatus="<%= t.status %>">
+            <td class="font-medium"><a href="/promotions/<%= t.id %>" class="text-indigo-600 hover:underline"><%= t.name %></a></td>
+            <td><%= t.productName %></td>
+            <td><span class="badge badge-gray"><%= t.targetLevel %></span></td>
+            <td><span class="badge <%= taskStatusMap[t.status].color %>"><%= taskStatusMap[t.status].label %></span></td>
+            <td>
+              <div class="flex items-center gap-2">
+                <div class="flex-1 bg-gray-200 rounded-full h-2" style="width:80px">
+                  <div class="bg-indigo-500 h-2 rounded-full" style="width:<%= pct %>%"></div>
+                </div>
+                <span class="text-xs text-gray-500"><%= t.sentCount %>/<%= t.totalTarget %></span>
+              </div>
+            </td>
+            <td><%= t.deadline %></td>
+            <td><a href="/promotions/<%= t.id %>" class="btn btn-outline btn-sm">查看</a></td>
+          </tr>
+          <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function setTFilter(v, btn) {
+  document.querySelectorAll('[data-tstatus]').forEach(b => { if(b.tagName==='BUTTON') b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.querySelectorAll('#task-tbody tr').forEach(row => {
+    row.style.display = v==='all' || row.dataset.tstatus===v ? '' : 'none';
+  });
+}
+</script>
+<%- include('../partials/footer') %>

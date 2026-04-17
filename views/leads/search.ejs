@@ -1,0 +1,69 @@
+<%- include('../partials/header') %>
+<div class="p-6 space-y-6">
+  <div class="flex items-center gap-4">
+    <a href="/leads" class="btn btn-ghost">← 返回</a>
+    <div>
+      <h1 class="text-2xl font-bold">线索查重</h1>
+      <p class="text-gray-500">检查邮箱或公司名是否已存在</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="flex gap-3">
+        <input type="text" id="dedup-search" class="input" style="width:320px" placeholder="输入邮箱或公司名搜索..." oninput="dedupSearch()">
+      </div>
+    </div>
+    <div class="card-content">
+      <div id="dedup-result">
+        <p class="text-sm text-gray-400">输入关键词以搜索</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const allLeads = <%- JSON.stringify(leads) %>;
+const allCustomers = <%- JSON.stringify(customers) %>;
+
+function dedupSearch() {
+  const q = document.getElementById('dedup-search').value.toLowerCase().trim();
+  const el = document.getElementById('dedup-result');
+  if (!q) { el.innerHTML = '<p class="text-sm text-gray-400">输入关键词以搜索</p>'; return; }
+
+  const matchedLeads = allLeads.filter(l =>
+    l.company.toLowerCase().includes(q) || l.email.toLowerCase().includes(q) || l.contact.toLowerCase().includes(q)
+  );
+  const matchedCustomers = allCustomers.filter(c =>
+    c.company.toLowerCase().includes(q) || c.email.toLowerCase().includes(q) || c.contact.toLowerCase().includes(q)
+  );
+
+  let html = '';
+  if (matchedLeads.length === 0 && matchedCustomers.length === 0) {
+    html = '<p class="text-sm text-green-600 font-medium">✅ 未发现重复记录</p>';
+  } else {
+    if (matchedLeads.length > 0) {
+      html += '<p class="text-sm font-medium text-gray-700 mb-2">线索中找到 ' + matchedLeads.length + ' 条匹配：</p>';
+      html += '<table class="table w-full mb-4"><thead><tr><th>公司</th><th>联系人</th><th>邮箱</th><th>状态</th><th>操作</th></tr></thead><tbody>';
+      matchedLeads.forEach(l => {
+        html += `<tr><td class="font-medium">${l.company}</td><td>${l.contact}</td><td>${l.email}</td>
+          <td><span class="badge badge-gray">${l.followers.length>0?'私有':'公海'}</span></td>
+          <td><a href="/leads/${l.id}" class="btn btn-outline btn-sm">查看</a></td></tr>`;
+      });
+      html += '</tbody></table>';
+    }
+    if (matchedCustomers.length > 0) {
+      html += '<p class="text-sm font-medium text-gray-700 mb-2">客户中找到 ' + matchedCustomers.length + ' 条匹配：</p>';
+      html += '<table class="table w-full"><thead><tr><th>公司</th><th>联系人</th><th>邮箱</th><th>等级</th><th>操作</th></tr></thead><tbody>';
+      matchedCustomers.forEach(c => {
+        html += `<tr><td class="font-medium">${c.company}</td><td>${c.contact}</td><td>${c.email}</td>
+          <td><span class="badge badge-orange">${c.level}级</span></td>
+          <td><a href="/customers/${c.id}" class="btn btn-outline btn-sm">查看</a></td></tr>`;
+      });
+      html += '</tbody></table>';
+    }
+  }
+  el.innerHTML = html;
+}
+</script>
+<%- include('../partials/footer') %>

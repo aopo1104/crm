@@ -1,0 +1,78 @@
+<%- include('../partials/header') %>
+<div class="p-6 space-y-6">
+  <div>
+    <h1 class="text-2xl font-bold">客户列表</h1>
+    <p class="text-gray-500">管理所有客户，查看客户详情</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header flex flex-wrap items-center justify-between gap-3">
+      <div class="relative">
+        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🔍</span>
+        <input type="text" id="cust-search" class="input pl-9" placeholder="搜索公司名/联系人..." style="width:240px" oninput="filterCustomers()">
+      </div>
+      <div class="flex gap-2 flex-wrap">
+        <% [['all','全部'],['A','A级'],['B','B级'],['C','C级']].forEach(([k,v]) => { %>
+        <button class="filter-btn <%= k==='all'?'active':'' %>" data-level="<%= k %>" onclick="setLevel('<%= k %>', this)"><%= v %></button>
+        <% }) %>
+        <span class="border-l mx-1"></span>
+        <% [['all','全阶段'],['not_ordered','未成交'],['sample','样品'],['closed','已成交']].forEach(([k,v]) => { %>
+        <button class="filter-btn <%= k==='all'?'active':'' %>" data-cstage="<%= k %>" onclick="setCStage('<%= k %>', this)"><%= v %></button>
+        <% }) %>
+      </div>
+    </div>
+    <div class="card-content">
+      <div class="overflow-x-auto">
+        <table class="table w-full">
+          <thead><tr>
+            <th>公司名称</th><th>联系人</th><th>等级</th><th>阶段</th><th>国家</th><th>最近下单</th><th>负责人</th><th>操作</th>
+          </tr></thead>
+          <tbody id="cust-tbody">
+          <% customers.forEach(c => { %>
+          <% const ds = c.lastOrderDate ? Math.floor((Date.now()-new Date(c.lastOrderDate).getTime())/86400000) : null; %>
+          <tr data-company="<%= c.company.toLowerCase() %>" data-contact="<%= c.contact.toLowerCase() %>"
+            data-level="<%= c.level %>" data-cstage="<%= c.stage %>">
+            <td class="font-medium"><a href="/customers/<%= c.id %>" class="text-indigo-600 hover:underline"><%= c.company %></a></td>
+            <td><%= c.contact %></td>
+            <td><span class="badge badge-orange"><%= c.level %>级</span></td>
+            <td><span class="badge <%= customerStageColors[c.stage] %>"><%= customerStageMap[c.stage] %></span></td>
+            <td><%= c.country %></td>
+            <td class="<%= ds!==null&&ds>60?'text-red-500 font-medium':'' %>">
+              <%= ds===null ? '—' : ds+'天前' %>
+            </td>
+            <td><%= c.salesperson %></td>
+            <td><a href="/customers/<%= c.id %>" class="btn btn-outline btn-sm">👁 查看</a></td>
+          </tr>
+          <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let levelFilter = 'all', cstageFilter = 'all';
+function setLevel(v, btn) {
+  levelFilter = v;
+  document.querySelectorAll('[data-level]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterCustomers();
+}
+function setCStage(v, btn) {
+  cstageFilter = v;
+  document.querySelectorAll('[data-cstage]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterCustomers();
+}
+function filterCustomers() {
+  const q = document.getElementById('cust-search').value.toLowerCase();
+  document.querySelectorAll('#cust-tbody tr').forEach(row => {
+    const mQ = !q || row.dataset.company.includes(q) || row.dataset.contact.includes(q);
+    const mL = levelFilter==='all' || row.dataset.level===levelFilter;
+    const mS = cstageFilter==='all' || row.dataset.cstage===cstageFilter;
+    row.style.display = mQ && mL && mS ? '' : 'none';
+  });
+}
+</script>
+<%- include('../partials/footer') %>

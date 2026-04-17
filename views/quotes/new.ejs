@@ -1,0 +1,99 @@
+<%- include('../partials/header') %>
+<div class="p-6 space-y-6">
+  <div class="flex items-center gap-4">
+    <a href="/quotes" class="btn btn-ghost">← 返回</a>
+    <h1 class="text-2xl font-bold">新建报价单</h1>
+  </div>
+
+  <div class="card" style="max-width:720px">
+    <div class="card-content pt-6">
+      <form class="space-y-5">
+        <div>
+          <label class="block text-sm font-medium mb-1">客户</label>
+          <select id="cust-select" class="input w-full" onchange="onCustomerChange(this)">
+            <option value="">— 请选择客户 —</option>
+            <% customers.forEach(c => { %>
+            <option value="<%= c.id %>" <%= (customer && customer.id===c.id)?'selected':'' %>><%= c.company %></option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-sm font-medium">报价明细</label>
+            <button type="button" class="btn btn-outline btn-sm" onclick="addItem()">+ 添加产品</button>
+          </div>
+          <table class="table w-full" id="items-table">
+            <thead><tr><th>产品</th><th>数量</th><th>单价 ($)</th><th>金额</th><th></th></tr></thead>
+            <tbody id="items-tbody">
+            </tbody>
+          </table>
+          <div class="text-right mt-3 font-semibold text-lg" id="total-display">合计：$0</div>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+          <button type="button" class="btn btn-primary" onclick="submitQuote()">提交审批</button>
+          <button type="button" class="btn btn-outline" onclick="saveDraft()">保存草稿</button>
+          <a href="/quotes" class="btn btn-ghost">取消</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+const products = <%- JSON.stringify(products) %>;
+let itemCount = 0;
+
+function addItem() {
+  const idx = itemCount++;
+  const opts = products.map(p => `<option value="${p.id}" data-base="${p.basePrice}">${p.name} (基准$${p.basePrice})</option>`).join('');
+  const row = document.createElement('tr');
+  row.id = 'item-' + idx;
+  row.innerHTML = `
+    <td><select class="input" style="width:200px" onchange="calcRow(${idx})">${opts}</select></td>
+    <td><input type="number" class="input" style="width:80px" value="1" min="1" onchange="calcRow(${idx})"></td>
+    <td><input type="number" class="input" style="width:100px" value="${products[0]?.basePrice||0}" onchange="calcRow(${idx})"></td>
+    <td class="font-medium" id="amt-${idx}">$${products[0]?.basePrice||0}</td>
+    <td><button type="button" class="btn btn-ghost btn-sm" onclick="removeItem(${idx})">✕</button></td>
+  `;
+  document.getElementById('items-tbody').appendChild(row);
+  updateTotal();
+}
+
+function calcRow(idx) {
+  const row = document.getElementById('item-' + idx);
+  if (!row) return;
+  const qty = parseFloat(row.cells[1].querySelector('input').value) || 0;
+  const price = parseFloat(row.cells[2].querySelector('input').value) || 0;
+  const amt = qty * price;
+  document.getElementById('amt-' + idx).textContent = '$' + amt.toLocaleString();
+  updateTotal();
+}
+
+function removeItem(idx) {
+  const row = document.getElementById('item-' + idx);
+  if (row) row.remove();
+  updateTotal();
+}
+
+function updateTotal() {
+  let total = 0;
+  document.querySelectorAll('#items-tbody tr').forEach(row => {
+    const qty = parseFloat(row.cells[1]?.querySelector('input')?.value) || 0;
+    const price = parseFloat(row.cells[2]?.querySelector('input')?.value) || 0;
+    total += qty * price;
+  });
+  document.getElementById('total-display').textContent = '合计：$' + total.toLocaleString();
+}
+
+function onCustomerChange(sel) {}
+
+function submitQuote() {
+  alert('报价单已提交审批（演示）');
+}
+function saveDraft() {
+  alert('草稿已保存（演示）');
+}
+</script>
+<%- include('../partials/footer') %>

@@ -1,0 +1,33 @@
+<%- include('../partials/header') %>
+<div class="p-6 space-y-6">
+  <div>
+    <h1 class="text-2xl font-bold">系统设置</h1>
+    <p class="text-gray-500">系统基础配置</p>
+  </div>
+
+  <div class="card" style="max-width:640px">
+    <div class="card-header"><h2 class="font-semibold">基本设置</h2></div>
+    <div class="card-content space-y-4">
+      <div>
+        <label class="block text-sm font-medium mb-1">当前用户</label>
+        <input class="input w-full" value="张总" readonly>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">公司名称</label>
+        <input class="input w-full" value="示例科技有限公司">
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">系统语言</label>
+        <select class="input w-full"><option>简体中文</option><option>English</option></select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">线索认领周期（天）</label>
+        <input type="number" class="input w-full" value="30">
+      </div>
+      <div class="pt-2">
+        <button class="btn btn-primary" onclick="alert('设置已保存（演示）')">保存设置</button>
+      </div>
+    </div>
+  </div>
+</div>
+<%- include('../partials/footer') %>

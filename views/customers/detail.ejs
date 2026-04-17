@@ -1,0 +1,179 @@
+<%- include('../partials/header') %>
+<div class="p-6 space-y-4">
+  <!-- Header -->
+  <div class="flex items-center gap-4">
+    <a href="/customers" class="btn btn-ghost">← 返回</a>
+    <div class="flex-1">
+      <div class="flex items-center gap-2 flex-wrap">
+        <h1 class="text-2xl font-bold"><%= customer.company %></h1>
+        <span class="badge badge-orange"><%= customer.level %>级</span>
+        <span class="badge <%= customerStageColors[customer.stage] %>"><%= customerStageMap[customer.stage] %></span>
+      </div>
+      <div class="flex gap-4 mt-1 text-sm text-gray-500">
+        <span><%= customer.id %></span>
+        <span>👤 业务员: <%= customer.salesperson %></span>
+        <span>👤 跟单员: <%= customer.orderTracker %></span>
+      </div>
+      <% const ds = customer.lastOrderDate ? Math.floor((Date.now()-new Date(customer.lastOrderDate).getTime())/86400000) : null; %>
+      <% if(ds!==null && ds>60) { %><p class="text-xs text-red-600 mt-1">⚠️ 已 <%= ds %> 天未下单，请及时跟进</p><% } %>
+    </div>
+    <a href="/quotes/new?customerId=<%= customer.id %>" class="btn btn-primary">+ 新建报价</a>
+  </div>
+
+  <!-- Basic info -->
+  <div class="card">
+    <div class="card-content pt-4">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <div>
+          <p class="text-xs text-gray-500">主联系人</p>
+          <% const pc = customerContacts.find(c=>c.isPrimary); %>
+          <p class="font-medium"><%= pc ? pc.name : customer.contact %></p>
+          <p class="text-xs text-gray-500"><%= pc ? pc.title : '' %></p>
+        </div>
+        <div><p class="text-xs text-gray-500">邮箱</p><p class="font-medium">📧 <%= customer.email %></p></div>
+        <div><p class="text-xs text-gray-500">电话</p><p class="font-medium">📞 <%= customer.phone %></p></div>
+        <div><p class="text-xs text-gray-500">国家/行业</p><p class="font-medium"><%= customer.country %> · <%= customer.industry %></p></div>
+        <div><p class="text-xs text-gray-500">累计订单额</p><p class="font-medium text-green-700">$<%= totalRevenue.toLocaleString() %></p></div>
+        <div><p class="text-xs text-gray-500">最近下单</p><p class="font-medium <%= ds!==null&&ds>60?'text-red-500':'' %>"><%= ds===null?'—':ds+'天前' %></p></div>
+        <div><p class="text-xs text-gray-500">品类</p><p class="font-medium"><%= customer.categories.join(' · ') %></p></div>
+        <div><p class="text-xs text-gray-500">创建时间</p><p class="font-medium"><%= customer.createdAt %></p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab buttons -->
+  <div class="flex gap-2 flex-wrap" id="c-tabs">
+    <button class="tab-btn <%= defaultTab==='orders'?'active':'' %>" onclick="showCTab('orders',this)">📦 订单记录</button>
+    <button class="tab-btn <%= defaultTab==='quotes'?'active':'' %>" onclick="showCTab('quotes',this)">📄 报价单</button>
+    <button class="tab-btn <%= defaultTab==='contacts'?'active':'' %>" onclick="showCTab('contacts',this)">👥 联系人</button>
+    <button class="tab-btn <%= defaultTab==='timeline'?'active':'' %>" onclick="showCTab('timeline',this)">🕐 动态</button>
+    <button class="tab-btn <%= defaultTab==='opps'?'active':'' %>" onclick="showCTab('opps',this)">💰 商机</button>
+  </div>
+
+  <!-- Orders Tab -->
+  <div id="ctab-orders" class="tab-panel <%= defaultTab==='orders'?'active':'' %>">
+    <div class="card">
+      <div class="card-content pt-4">
+        <% if(customerOrders.length===0) { %>
+        <p class="text-sm text-gray-400 pb-4">暂无订单</p>
+        <% } else { %>
+        <table class="table w-full">
+          <thead><tr><th>日期</th><th>产品</th><th>SKU</th><th>数量</th><th>单价</th><th>总额</th></tr></thead>
+          <tbody>
+          <% customerOrders.forEach(o => { %>
+          <tr>
+            <td><%= o.orderDate %></td>
+            <td><%= o.productName %></td>
+            <td class="text-gray-500 text-xs"><%= o.sku %></td>
+            <td><%= o.quantity %></td>
+            <td>$<%= o.unitPrice %></td>
+            <td class="font-medium">$<%= o.totalAmount.toLocaleString() %></td>
+          </tr>
+          <% }) %>
+          </tbody>
+        </table>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quotes Tab -->
+  <div id="ctab-quotes" class="tab-panel <%= defaultTab==='quotes'?'active':'' %>">
+    <div class="card">
+      <div class="card-content pt-4">
+        <% if(customerQuotes.length===0) { %>
+        <p class="text-sm text-gray-400 pb-4">暂无报价单</p>
+        <% } else { %>
+        <table class="table w-full">
+          <thead><tr><th>报价单号</th><th>金额</th><th>状态</th><th>创建日期</th><th>创建人</th></tr></thead>
+          <tbody>
+          <% customerQuotes.forEach(q => { %>
+          <tr>
+            <td class="font-medium"><%= q.id %></td>
+            <td>$<%= q.totalAmount.toLocaleString() %></td>
+            <td><span class="badge <%= quoteStatusMap[q.status].color %>"><%= quoteStatusMap[q.status].label %></span></td>
+            <td><%= q.createdAt %></td>
+            <td><%= q.createdBy %></td>
+          </tr>
+          <% }) %>
+          </tbody>
+        </table>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contacts Tab -->
+  <div id="ctab-contacts" class="tab-panel <%= defaultTab==='contacts'?'active':'' %>">
+    <div class="card">
+      <div class="card-content pt-4">
+        <% if(customerContacts.length===0) { %>
+        <p class="text-sm text-gray-400 pb-4">暂无联系人</p>
+        <% } else { %>
+        <table class="table w-full">
+          <thead><tr><th>姓名</th><th>职位</th><th>邮箱</th><th>电话</th><th>主联系人</th></tr></thead>
+          <tbody>
+          <% customerContacts.forEach(c => { %>
+          <tr>
+            <td class="font-medium"><%= c.name %></td>
+            <td><%= c.title %></td>
+            <td><%= c.email %></td>
+            <td><%= c.phone %></td>
+            <td><%= c.isPrimary ? '✅' : '' %></td>
+          </tr>
+          <% }) %>
+          </tbody>
+        </table>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timeline Tab -->
+  <div id="ctab-timeline" class="tab-panel <%= defaultTab==='timeline'?'active':'' %> space-y-3">
+    <% customerTimeline.forEach(e => { %>
+    <% const ti = timelineTypeIcons[e.type] || {icon:'📌', color:'bg-gray-100'}; %>
+    <div class="flex gap-3 items-start">
+      <div class="flex-shrink-0 w-9 h-9 rounded-full <%= ti.color %> flex items-center justify-center text-lg"><%= ti.icon %></div>
+      <div class="card flex-1">
+        <div class="card-content pt-3 pb-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-medium text-sm"><%= e.title %></span>
+            <span class="text-xs text-gray-400"><%= e.createdAt %> · <%= e.createdBy %></span>
+          </div>
+          <p class="text-sm text-gray-600"><%= e.content %></p>
+        </div>
+      </div>
+    </div>
+    <% }) %>
+  </div>
+
+  <!-- Opportunities Tab -->
+  <div id="ctab-opps" class="tab-panel <%= defaultTab==='opps'?'active':'' %> space-y-3">
+    <% if(customerOpps.length===0) { %>
+    <div class="card"><div class="card-content pt-4 pb-4"><p class="text-sm text-gray-400">暂无商机</p></div></div>
+    <% } %>
+    <% customerOpps.forEach(o => { %>
+    <div class="card">
+      <div class="card-content pt-4 pb-4 flex items-center justify-between">
+        <div>
+          <p class="font-medium text-sm"><%= o.name %></p>
+          <p class="text-xs text-gray-500 mt-1">预计金额 $<%= o.estimatedAmount.toLocaleString() %> · 预计成交 <%= o.expectedCloseDate %></p>
+          <p class="text-xs text-gray-500"><%= o.notes %></p>
+        </div>
+        <span class="badge <%= opportunityStageColors[o.stage] %>"><%= opportunityStageMap[o.stage] %></span>
+      </div>
+    </div>
+    <% }) %>
+  </div>
+</div>
+
+<script>
+function showCTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('#c-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('ctab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+<%- include('../partials/footer') %>

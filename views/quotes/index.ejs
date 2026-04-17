@@ -1,0 +1,50 @@
+<%- include('../partials/header') %>
+<div class="p-6 space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold">报价列表</h1>
+      <p class="text-gray-500">管理所有报价单</p>
+    </div>
+    <a href="/quotes/new" class="btn btn-primary">+ 新建报价</a>
+  </div>
+
+  <div class="card">
+    <div class="card-header flex gap-2 flex-wrap">
+      <% [['all','全部'],['draft','草稿'],['pending_approval','待审批'],['approved','已审批'],['sent','已发送']].forEach(([k,v]) => { %>
+      <button class="filter-btn <%= k==='all'?'active':'' %>" data-qstatus="<%= k %>" onclick="setQFilter('<%= k %>',this)"><%= v %></button>
+      <% }) %>
+    </div>
+    <div class="card-content">
+      <div class="overflow-x-auto">
+        <table class="table w-full">
+          <thead><tr>
+            <th>报价单号</th><th>客户</th><th>金额</th><th>状态</th><th>创建日期</th><th>创建人</th>
+          </tr></thead>
+          <tbody id="quote-tbody">
+          <% quotes.forEach(q => { %>
+          <tr data-qstatus="<%= q.status %>">
+            <td class="font-medium"><%= q.id %></td>
+            <td><a href="/customers/<%= q.customerId %>?tab=quotes" class="text-indigo-600 hover:underline"><%= q.customerName %></a></td>
+            <td>$<%= q.totalAmount.toLocaleString() %></td>
+            <td><span class="badge <%= quoteStatusMap[q.status].color %>"><%= quoteStatusMap[q.status].label %></span></td>
+            <td><%= q.createdAt %></td>
+            <td><%= q.createdBy %></td>
+          </tr>
+          <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function setQFilter(v, btn) {
+  document.querySelectorAll('[data-qstatus]').forEach(b => { if(b.tagName==='BUTTON') b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.querySelectorAll('#quote-tbody tr').forEach(row => {
+    row.style.display = v==='all' || row.dataset.qstatus===v ? '' : 'none';
+  });
+}
+</script>
+<%- include('../partials/footer') %>
