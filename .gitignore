@@ -4,3 +4,5 @@ out
 .DS_Store
 *.tsbuildinfo
 next-env.d.ts
+prd.md
+prd2.0.md
