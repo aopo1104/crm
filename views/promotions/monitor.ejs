@@ -8,7 +8,7 @@
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
     <% promotionTasks.forEach(t => { %>
     <% const pct = t.totalTarget>0 ? Math.round(t.sentCount/t.totalTarget*100) : 0; %>
-    <a href="/promotions/<%= t.id %>" class="stat-card">
+    <a href="<%= base %>/promotions/<%= t.id %>" class="stat-card">
       <div class="flex items-center justify-between mb-3">
         <h3 class="font-semibold text-sm"><%= t.name %></h3>
         <span class="badge <%= taskStatusMap[t.status].color %>"><%= taskStatusMap[t.status].label %></span>

@@ -57,40 +57,40 @@
     <span class="font-bold text-lg">CRM 系统</span>
   </div>
   <nav class="flex-1 overflow-y-auto py-2 px-2">
-    <a href="/" class="nav-item <%= locals.page==='workbench'?'nav-active':'' %>">
+    <a href="<%= base %>/" class="nav-item <%= locals.page==='workbench'?'nav-active':'' %>">
       <span>🏠</span> 工作台
     </a>
     <p class="px-3 py-1 text-xs font-medium text-gray-400 uppercase tracking-wider mt-3">线索管理</p>
-    <a href="/leads" class="nav-item <%= locals.page==='leads'?'nav-active':'' %>">
+    <a href="<%= base %>/leads" class="nav-item <%= locals.page==='leads'?'nav-active':'' %>">
       <span>🌐</span> 线索管理
     </a>
-    <a href="/leads/search" class="nav-item <%= locals.page==='leads-search'?'nav-active':'' %>">
+    <a href="<%= base %>/leads/search" class="nav-item <%= locals.page==='leads-search'?'nav-active':'' %>">
       <span>🔍</span> 线索查重
     </a>
     <p class="px-3 py-1 text-xs font-medium text-gray-400 uppercase tracking-wider mt-3">客户管理</p>
-    <a href="/customers" class="nav-item <%= locals.page==='customers'?'nav-active':'' %>">
+    <a href="<%= base %>/customers" class="nav-item <%= locals.page==='customers'?'nav-active':'' %>">
       <span>🏢</span> 客户列表
     </a>
     <p class="px-3 py-1 text-xs font-medium text-gray-400 uppercase tracking-wider mt-3">报价管理</p>
-    <a href="/quotes" class="nav-item <%= locals.page==='quotes'?'nav-active':'' %>">
+    <a href="<%= base %>/quotes" class="nav-item <%= locals.page==='quotes'?'nav-active':'' %>">
       <span>📄</span> 报价列表
     </a>
-    <a href="/approvals" class="nav-item <%= locals.page==='approvals'?'nav-active':'' %>">
+    <a href="<%= base %>/approvals" class="nav-item <%= locals.page==='approvals'?'nav-active':'' %>">
       <span>✅</span> 审批中心
     </a>
     <p class="px-3 py-1 text-xs font-medium text-gray-400 uppercase tracking-wider mt-3">推广管理</p>
-    <a href="/promotions" class="nav-item <%= locals.page==='promotions'?'nav-active':'' %>">
+    <a href="<%= base %>/promotions" class="nav-item <%= locals.page==='promotions'?'nav-active':'' %>">
       <span>📋</span> 推广任务
     </a>
-    <a href="/promotions/monitor" class="nav-item <%= locals.page==='promotions-monitor'?'nav-active':'' %>">
+    <a href="<%= base %>/promotions/monitor" class="nav-item <%= locals.page==='promotions-monitor'?'nav-active':'' %>">
       <span>📊</span> 监控看板
     </a>
     <p class="px-3 py-1 text-xs font-medium text-gray-400 uppercase tracking-wider mt-3">数据分析</p>
-    <a href="/reports" class="nav-item <%= locals.page==='reports'?'nav-active':'' %>">
+    <a href="<%= base %>/reports" class="nav-item <%= locals.page==='reports'?'nav-active':'' %>">
       <span>📈</span> 报表中心
     </a>
     <div class="border-t mt-3 pt-2">
-      <a href="/settings" class="nav-item <%= locals.page==='settings'?'nav-active':'' %>">
+      <a href="<%= base %>/settings" class="nav-item <%= locals.page==='settings'?'nav-active':'' %>">
         <span>⚙️</span> 系统设置
       </a>
     </div>

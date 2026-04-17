@@ -1,7 +1,7 @@
 <%- include('../partials/header') %>
 <div class="p-6 space-y-6">
   <div class="flex items-center gap-4">
-    <a href="/quotes" class="btn btn-ghost">← 返回</a>
+    <a href="<%= base %>/quotes" class="btn btn-ghost">← 返回</a>
     <h1 class="text-2xl font-bold">新建报价单</h1>
   </div>
 
@@ -34,7 +34,7 @@
         <div class="flex gap-3 pt-2">
           <button type="button" class="btn btn-primary" onclick="submitQuote()">提交审批</button>
           <button type="button" class="btn btn-outline" onclick="saveDraft()">保存草稿</button>
-          <a href="/quotes" class="btn btn-ghost">取消</a>
+          <a href="<%= base %>/quotes" class="btn btn-ghost">取消</a>
         </div>
       </form>
     </div>

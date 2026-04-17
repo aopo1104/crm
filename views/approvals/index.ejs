@@ -31,10 +31,10 @@
           </div>
           <% if(a.status==='pending') { %>
           <div class="flex gap-2">
-            <form action="/approvals/<%= a.id %>/approve" method="POST" style="display:inline">
+            <form action="<%= base %>/approvals/<%= a.id %>/approve" method="POST" style="display:inline">
               <button type="submit" class="btn btn-success btn-sm">✓ 批准</button>
             </form>
-            <form action="/approvals/<%= a.id %>/reject" method="POST" style="display:inline">
+            <form action="<%= base %>/approvals/<%= a.id %>/reject" method="POST" style="display:inline">
               <button type="submit" class="btn btn-danger btn-sm">✕ 拒绝</button>
             </form>
           </div>

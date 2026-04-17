@@ -11,6 +11,7 @@ const {
 
 const app = express();
 const PORT = process.env.PORT || 3002;
+const BASE = '/crm';
 
 // In-memory state for approvals (simulates React state)
 let localApprovals = JSON.parse(JSON.stringify(approvals));
@@ -21,8 +22,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
+// Make base path available in all EJS templates
+const router = express.Router();
+router.use((req, res, next) => { res.locals.base = BASE; next(); });
+
+// Redirect root to /crm
+app.get('/', (req, res) => res.redirect(BASE));
+
 // ── Workbench ──────────────────────────────────────────────────────────────
-app.get('/', (req, res) => {
+router.get('/', (req, res) => {
   const publicLeads = leads.filter(l => l.followers.length === 0);
   const pendingApprovals = localApprovals.filter(a => a.status === 'pending');
   const activeTasks = promotionTasks.filter(t => t.status === 'active');
@@ -56,7 +64,7 @@ app.get('/', (req, res) => {
 });
 
 // ── Leads ──────────────────────────────────────────────────────────────────
-app.get('/leads', (req, res) => {
+router.get('/leads', (req, res) => {
   const CURRENT_USER = '李明';
   const myPoints = salespersonPoints.find(p => p.name === CURRENT_USER);
   const claimLimit = myPoints ? calcClaimLimit(myPoints) : 5;
@@ -73,13 +81,13 @@ app.get('/leads', (req, res) => {
   });
 });
 
-app.get('/leads/search', (req, res) => {
+router.get('/leads/search', (req, res) => {
   res.render('leads/search', { page: 'leads-search', leads, customers });
 });
 
-app.get('/leads/:id', (req, res) => {
+router.get('/leads/:id', (req, res) => {
   const lead = leads.find(l => l.id === req.params.id);
-  if (!lead) return res.redirect('/leads');
+  if (!lead) return res.redirect(BASE + '/leads');
   const leadContacts = contacts.filter(c => c.relatedId === lead.id);
   const leadFollowUps = followUpRecords.filter(f => f.leadId === lead.id);
   const leadOpps = businessOpportunities.filter(o => o.relatedId === lead.id);
@@ -92,7 +100,7 @@ app.get('/leads/:id', (req, res) => {
 });
 
 // ── Customers ──────────────────────────────────────────────────────────────
-app.get('/customers', (req, res) => {
+router.get('/customers', (req, res) => {
   res.render('customers/index', {
     page: 'customers',
     customers,
@@ -103,9 +111,9 @@ app.get('/customers', (req, res) => {
   });
 });
 
-app.get('/customers/:id', (req, res) => {
+router.get('/customers/:id', (req, res) => {
   const customer = customers.find(c => c.id === req.params.id);
-  if (!customer) return res.redirect('/customers');
+  if (!customer) return res.redirect(BASE + '/customers');
   const customerContacts = contacts.filter(c => c.relatedId === customer.id);
   const customerTimeline = timelineEvents.filter(e => e.customerId === customer.id)
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -125,7 +133,7 @@ app.get('/customers/:id', (req, res) => {
 });
 
 // ── Opportunities ──────────────────────────────────────────────────────────
-app.get('/opportunities', (req, res) => {
+router.get('/opportunities', (req, res) => {
   res.render('opportunities/index', {
     page: 'opportunities',
     opportunities: businessOpportunities,
@@ -135,7 +143,7 @@ app.get('/opportunities', (req, res) => {
 });
 
 // ── Promotions ─────────────────────────────────────────────────────────────
-app.get('/promotions', (req, res) => {
+router.get('/promotions', (req, res) => {
   res.render('promotions/index', {
     page: 'promotions',
     promotionTasks,
@@ -144,11 +152,11 @@ app.get('/promotions', (req, res) => {
   });
 });
 
-app.get('/promotions/new', (req, res) => {
+router.get('/promotions/new', (req, res) => {
   res.render('promotions/new', { page: 'promotions', products });
 });
 
-app.get('/promotions/monitor', (req, res) => {
+router.get('/promotions/monitor', (req, res) => {
   res.render('promotions/monitor', {
     page: 'promotions-monitor',
     promotionTasks,
@@ -156,9 +164,9 @@ app.get('/promotions/monitor', (req, res) => {
   });
 });
 
-app.get('/promotions/:id', (req, res) => {
+router.get('/promotions/:id', (req, res) => {
   const task = promotionTasks.find(t => t.id === req.params.id);
-  if (!task) return res.redirect('/promotions');
+  if (!task) return res.redirect(BASE + '/promotions');
   res.render('promotions/detail', {
     page: 'promotions',
     task,
@@ -169,7 +177,7 @@ app.get('/promotions/:id', (req, res) => {
 });
 
 // ── Quotes ─────────────────────────────────────────────────────────────────
-app.get('/quotes', (req, res) => {
+router.get('/quotes', (req, res) => {
   res.render('quotes/index', {
     page: 'quotes',
     quotes,
@@ -177,7 +185,7 @@ app.get('/quotes', (req, res) => {
   });
 });
 
-app.get('/quotes/new', (req, res) => {
+router.get('/quotes/new', (req, res) => {
   const customerId = req.query.customerId || '';
   const customer = customers.find(c => c.id === customerId);
   res.render('quotes/new', {
@@ -189,27 +197,27 @@ app.get('/quotes/new', (req, res) => {
 });
 
 // ── Approvals ──────────────────────────────────────────────────────────────
-app.get('/approvals', (req, res) => {
+router.get('/approvals', (req, res) => {
   res.render('approvals/index', {
     page: 'approvals',
     approvals: localApprovals,
   });
 });
 
-app.post('/approvals/:id/approve', (req, res) => {
+router.post('/approvals/:id/approve', (req, res) => {
   const a = localApprovals.find(x => x.id === req.params.id);
   if (a) { a.status = 'approved'; a.approvedBy = '张总'; a.approvedAt = new Date().toISOString().slice(0, 10); }
-  res.redirect('/approvals');
+  res.redirect(BASE + '/approvals');
 });
 
-app.post('/approvals/:id/reject', (req, res) => {
+router.post('/approvals/:id/reject', (req, res) => {
   const a = localApprovals.find(x => x.id === req.params.id);
   if (a) { a.status = 'rejected'; a.approvedBy = '张总'; a.approvedAt = new Date().toISOString().slice(0, 10); }
-  res.redirect('/approvals');
+  res.redirect(BASE + '/approvals');
 });
 
 // ── Reports ────────────────────────────────────────────────────────────────
-app.get('/reports', (req, res) => {
+router.get('/reports', (req, res) => {
   res.render('reports/index', {
     page: 'reports',
     funnelStats,
@@ -221,10 +229,12 @@ app.get('/reports', (req, res) => {
 });
 
 // ── Settings ───────────────────────────────────────────────────────────────
-app.get('/settings', (req, res) => {
+router.get('/settings', (req, res) => {
   res.render('settings/index', { page: 'settings' });
 });
 
+app.use(BASE, router);
+
 app.listen(PORT, () => {
-  console.log(`CRM running at http://localhost:${PORT}`);
+  console.log(`CRM running at http://localhost:${PORT}${BASE}`);
 });

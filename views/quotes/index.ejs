@@ -5,7 +5,7 @@
       <h1 class="text-2xl font-bold">报价列表</h1>
       <p class="text-gray-500">管理所有报价单</p>
     </div>
-    <a href="/quotes/new" class="btn btn-primary">+ 新建报价</a>
+    <a href="<%= base %>/quotes/new" class="btn btn-primary">+ 新建报价</a>
   </div>
 
   <div class="card">
@@ -24,7 +24,7 @@
           <% quotes.forEach(q => { %>
           <tr data-qstatus="<%= q.status %>">
             <td class="font-medium"><%= q.id %></td>
-            <td><a href="/customers/<%= q.customerId %>?tab=quotes" class="text-indigo-600 hover:underline"><%= q.customerName %></a></td>
+            <td><a href="<%= base %>/customers/<%= q.customerId %>?tab=quotes" class="text-indigo-600 hover:underline"><%= q.customerName %></a></td>
             <td>$<%= q.totalAmount.toLocaleString() %></td>
             <td><span class="badge <%= quoteStatusMap[q.status].color %>"><%= quoteStatusMap[q.status].label %></span></td>
             <td><%= q.createdAt %></td>

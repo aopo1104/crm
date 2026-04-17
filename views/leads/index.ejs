@@ -5,7 +5,7 @@
       <h1 class="text-2xl font-bold">线索管理</h1>
       <p class="text-gray-500">公海线索对所有人可见，私有线索仅认领人可见</p>
     </div>
-    <a href="/leads/search" class="btn btn-outline">🔍 线索查重</a>
+    <a href="<%= base %>/leads/search" class="btn btn-outline">🔍 线索查重</a>
   </div>
 
   <!-- Claim quota -->
@@ -77,7 +77,7 @@
           <% leads.filter(l=>l.followers.length===0).forEach(l => { %>
           <tr class="lead-row" data-company="<%= l.company.toLowerCase() %>" data-contact="<%= l.contact.toLowerCase() %>"
             data-dropped="<%= l.droppedToPublicAt||l.createdAt %>">
-            <td class="font-medium"><a href="/leads/<%= l.id %>" class="text-indigo-600 hover:underline"><%= l.company %></a></td>
+            <td class="font-medium"><a href="<%= base %>/leads/<%= l.id %>" class="text-indigo-600 hover:underline"><%= l.company %></a></td>
             <td><%= l.contact %></td>
             <td><%= l.source %></td>
             <td><%= l.industry %></td>
@@ -87,7 +87,7 @@
               <%= dd %> 天前
             </td>
             <td>
-              <a href="/leads/<%= l.id %>" class="btn btn-outline btn-sm">👁 查看</a>
+              <a href="<%= base %>/leads/<%= l.id %>" class="btn btn-outline btn-sm">👁 查看</a>
               <button class="btn btn-primary btn-sm ml-1" onclick="claimLead(this)">认领</button>
             </td>
           </tr>
@@ -109,7 +109,7 @@
           <% const ds = l.lastFollowUpDate ? Math.floor((Date.now()-new Date(l.lastFollowUpDate).getTime())/86400000) : null; %>
           <tr class="lead-row-priv" data-company="<%= l.company.toLowerCase() %>" data-contact="<%= l.contact.toLowerCase() %>"
             data-stage="<%= l.status %>">
-            <td class="font-medium"><a href="/leads/<%= l.id %>" class="text-indigo-600 hover:underline"><%= l.company %></a></td>
+            <td class="font-medium"><a href="<%= base %>/leads/<%= l.id %>" class="text-indigo-600 hover:underline"><%= l.company %></a></td>
             <td><%= l.contact %></td>
             <td><span class="badge <%= leadStageColors[l.status] %>"><%= leadStageMap[l.status] %></span></td>
             <td><%= l.followers.join(', ') %></td>
@@ -117,7 +117,7 @@
             <td class="<%= (ds===null||ds>7)?'text-red-500 font-medium':'' %>">
               <%= ds===null ? '未跟进' : ds+'天前' %>
             </td>
-            <td><a href="/leads/<%= l.id %>" class="btn btn-outline btn-sm">👁 查看</a></td>
+            <td><a href="<%= base %>/leads/<%= l.id %>" class="btn btn-outline btn-sm">👁 查看</a></td>
           </tr>
           <% }) %>
           </tbody>

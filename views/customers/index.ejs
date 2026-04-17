@@ -32,7 +32,7 @@
           <% const ds = c.lastOrderDate ? Math.floor((Date.now()-new Date(c.lastOrderDate).getTime())/86400000) : null; %>
           <tr data-company="<%= c.company.toLowerCase() %>" data-contact="<%= c.contact.toLowerCase() %>"
             data-level="<%= c.level %>" data-cstage="<%= c.stage %>">
-            <td class="font-medium"><a href="/customers/<%= c.id %>" class="text-indigo-600 hover:underline"><%= c.company %></a></td>
+            <td class="font-medium"><a href="<%= base %>/customers/<%= c.id %>" class="text-indigo-600 hover:underline"><%= c.company %></a></td>
             <td><%= c.contact %></td>
             <td><span class="badge badge-orange"><%= c.level %>级</span></td>
             <td><span class="badge <%= customerStageColors[c.stage] %>"><%= customerStageMap[c.stage] %></span></td>
@@ -41,7 +41,7 @@
               <%= ds===null ? '—' : ds+'天前' %>
             </td>
             <td><%= c.salesperson %></td>
-            <td><a href="/customers/<%= c.id %>" class="btn btn-outline btn-sm">👁 查看</a></td>
+            <td><a href="<%= base %>/customers/<%= c.id %>" class="btn btn-outline btn-sm">👁 查看</a></td>
           </tr>
           <% }) %>
           </tbody>

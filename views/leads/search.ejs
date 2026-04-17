@@ -1,7 +1,7 @@
 <%- include('../partials/header') %>
 <div class="p-6 space-y-6">
   <div class="flex items-center gap-4">
-    <a href="/leads" class="btn btn-ghost">← 返回</a>
+    <a href="<%= base %>/leads" class="btn btn-ghost">← 返回</a>
     <div>
       <h1 class="text-2xl font-bold">线索查重</h1>
       <p class="text-gray-500">检查邮箱或公司名是否已存在</p>
@@ -25,6 +25,7 @@
 <script>
 const allLeads = <%- JSON.stringify(leads) %>;
 const allCustomers = <%- JSON.stringify(customers) %>;
+const base = '<%= base %>';
 
 function dedupSearch() {
   const q = document.getElementById('dedup-search').value.toLowerCase().trim();
@@ -48,7 +49,7 @@ function dedupSearch() {
       matchedLeads.forEach(l => {
         html += `<tr><td class="font-medium">${l.company}</td><td>${l.contact}</td><td>${l.email}</td>
           <td><span class="badge badge-gray">${l.followers.length>0?'私有':'公海'}</span></td>
-          <td><a href="/leads/${l.id}" class="btn btn-outline btn-sm">查看</a></td></tr>`;
+          <td><a href="${base}/leads/${l.id}" class="btn btn-outline btn-sm">查看</a></td></tr>`;
       });
       html += '</tbody></table>';
     }
@@ -58,7 +59,7 @@ function dedupSearch() {
       matchedCustomers.forEach(c => {
         html += `<tr><td class="font-medium">${c.company}</td><td>${c.contact}</td><td>${c.email}</td>
           <td><span class="badge badge-orange">${c.level}级</span></td>
-          <td><a href="/customers/${c.id}" class="btn btn-outline btn-sm">查看</a></td></tr>`;
+          <td><a href="${base}/customers/${c.id}" class="btn btn-outline btn-sm">查看</a></td></tr>`;
       });
       html += '</tbody></table>';
     }

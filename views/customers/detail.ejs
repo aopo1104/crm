@@ -2,7 +2,7 @@
 <div class="p-6 space-y-4">
   <!-- Header -->
   <div class="flex items-center gap-4">
-    <a href="/customers" class="btn btn-ghost">← 返回</a>
+    <a href="<%= base %>/customers" class="btn btn-ghost">← 返回</a>
     <div class="flex-1">
       <div class="flex items-center gap-2 flex-wrap">
         <h1 class="text-2xl font-bold"><%= customer.company %></h1>
@@ -17,7 +17,7 @@
       <% const ds = customer.lastOrderDate ? Math.floor((Date.now()-new Date(customer.lastOrderDate).getTime())/86400000) : null; %>
       <% if(ds!==null && ds>60) { %><p class="text-xs text-red-600 mt-1">⚠️ 已 <%= ds %> 天未下单，请及时跟进</p><% } %>
     </div>
-    <a href="/quotes/new?customerId=<%= customer.id %>" class="btn btn-primary">+ 新建报价</a>
+    <a href="<%= base %>/quotes/new?customerId=<%= customer.id %>" class="btn btn-primary">+ 新建报价</a>
   </div>
 
   <!-- Basic info -->

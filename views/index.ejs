@@ -7,7 +7,7 @@
 
   <!-- Stats -->
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-    <a href="/leads" class="stat-card">
+    <a href="<%= base %>/leads" class="stat-card">
       <div class="flex justify-between items-center mb-2">
         <span class="text-sm text-gray-500 font-medium">公海线索</span>
         <span class="text-lg">🌐</span>
@@ -15,7 +15,7 @@
       <div class="text-2xl font-bold"><%= publicLeadsCount %></div>
       <p class="text-xs text-gray-500 mt-1">公海线索（待认领）</p>
     </a>
-    <a href="/customers" class="stat-card">
+    <a href="<%= base %>/customers" class="stat-card">
       <div class="flex justify-between items-center mb-2">
         <span class="text-sm text-gray-500 font-medium">客户总数</span>
         <span class="text-lg">🏢</span>
@@ -23,7 +23,7 @@
       <div class="text-2xl font-bold"><%= customersCount %></div>
       <p class="text-xs text-gray-500 mt-1">活跃客户</p>
     </a>
-    <a href="/approvals" class="stat-card border-yellow-200">
+    <a href="<%= base %>/approvals" class="stat-card border-yellow-200">
       <div class="flex justify-between items-center mb-2">
         <span class="text-sm text-gray-500 font-medium">待审批</span>
         <span class="text-lg">✅</span>
@@ -31,7 +31,7 @@
       <div class="text-2xl font-bold text-yellow-600"><%= pendingApprovals.length %></div>
       <p class="text-xs text-gray-500 mt-1">需要您处理</p>
     </a>
-    <a href="/promotions" class="stat-card">
+    <a href="<%= base %>/promotions" class="stat-card">
       <div class="flex justify-between items-center mb-2">
         <span class="text-sm text-gray-500 font-medium">进行中推广</span>
         <span class="text-lg">📋</span>
@@ -72,7 +72,7 @@
       </div>
       <div class="card-content space-y-2">
         <% pendingApprovals.forEach(a => { %>
-        <a href="/approvals" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+        <a href="<%= base %>/approvals" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
           <div>
             <p class="text-sm font-medium"><%= a.title %></p>
             <p class="text-xs text-gray-500"><%= a.description %></p>
@@ -88,11 +88,11 @@
     <div class="card">
       <div class="card-header flex items-center justify-between">
         <div class="flex items-center gap-2"><span>📋</span><h2 class="font-semibold text-base">待执行推广任务</h2></div>
-        <a href="/promotions" class="btn btn-ghost btn-sm">查看全部</a>
+        <a href="<%= base %>/promotions" class="btn btn-ghost btn-sm">查看全部</a>
       </div>
       <div class="card-content space-y-2">
         <% activeTasks.forEach(t => { %>
-        <a href="/promotions/<%= t.id %>" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+        <a href="<%= base %>/promotions/<%= t.id %>" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
           <div>
             <p class="text-sm font-medium"><%= t.name %></p>
             <p class="text-xs text-gray-500">已发送 <%= t.sentCount %>/<%= t.totalTarget %> · 截止 <%= t.deadline %></p>
@@ -107,11 +107,11 @@
     <div class="card">
       <div class="card-header flex items-center justify-between">
         <div class="flex items-center gap-2"><span>📄</span><h2 class="font-semibold text-base">最近报价</h2></div>
-        <a href="/quotes" class="btn btn-ghost btn-sm">查看全部</a>
+        <a href="<%= base %>/quotes" class="btn btn-ghost btn-sm">查看全部</a>
       </div>
       <div class="card-content space-y-2">
         <% recentQuotes.forEach(q => { %>
-        <a href="/customers/<%= q.customerId %>?tab=quotes" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+        <a href="<%= base %>/customers/<%= q.customerId %>?tab=quotes" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
           <div>
             <p class="text-sm font-medium"><%= q.customerName %></p>
             <p class="text-xs text-gray-500">$<%= q.totalAmount.toLocaleString() %> · <%= q.createdAt %></p>
